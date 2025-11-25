@@ -6,7 +6,7 @@
 - [Usage](#usage)
 - [Files](#files)
 - [Requirements](#requirements)
-- [License](#license)
+- [Detection & Ethics Note](#detection--ethics-note)
 - [References](#references)
 
 A minimal C project demonstrating manual Windows API resolution and shellcode techniques.
@@ -41,8 +41,12 @@ This project shows how to:
 - Windows (x86 or x64)
 - MinGW or compatible C compiler
 
-## License
-Specify your license here if needed.
+## Detection & Ethics Note
+
+**Research-only.**
+- This technique does not guarantee stealth. Security products may detect hardware breakpoint usage, VEH patterns, or emulator behavior.
+- Do not use to evade detection, run untrusted code, or break laws/policies.
+- Always test in isolated, offline VMs and follow responsible disclosure and research ethics.
 
 ## References
 Add references to documentation, articles, or resources here.
