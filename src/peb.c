@@ -1,4 +1,3 @@
-#include "environment.h"
 #include "peb.h"
 
 #ifdef ENVIRONMENT_x86_64
@@ -18,24 +17,6 @@ PPEB GetCurrentPEB() {
     asm("movl %%fs:%1, %0" : "=r" (peb) : "m" (*(PUINT32)(PEB_OFFSET)));
 #endif // WIN32
     return peb;
-}
-
-// Custom case-insensitive wide string comparison
-static BOOL CompareWideStringIgnoreCase(const WCHAR* str1, const WCHAR* str2) {
-	// Loop through each character in both strings
-	while (*str1 && *str2) {
-		// Convert to lowercase cause-insensitive comparison
-		WCHAR c1 = towlower(*str1);
-		WCHAR c2 = towlower(*str2);
-		// Compare the characters
-		if (c1 != c2) {
-			return FALSE; // They differ in case-folded form
-		}
-		// Move to the next characters
-		str1++;
-		str2++;
-	}
-	return (*str1 == *str2); // Both must land on the null terminator together
 }
 
 // Get the base address of a module by its name

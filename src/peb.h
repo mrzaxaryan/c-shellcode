@@ -1,7 +1,7 @@
 #ifndef __PEB_H__
 #define __PEB_H__
 
-#include "primitives.h"
+#include "string.h"
 
 // Unicode string structure
 typedef struct _UNICODE_STRING {

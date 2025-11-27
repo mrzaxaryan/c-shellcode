@@ -1,7 +1,7 @@
 #ifndef __PE_H__
 #define __PE_H__
 
-#include "primitives.h"
+#include "string.h"
 
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
 

@@ -1,23 +1,5 @@
 #include "pe.h"
 
-// Custom case-insensitive string comparison
-static BOOL CompareStringIgnoreCase(const CHAR* str1, const CHAR* str2) {
-	// Loop through each character in both strings
-	while (*str1 && *str2) {
-		// Convert to lowercase for case-insensitive comparison
-		CHAR c1 = tolower(*str1);
-		CHAR c2 = tolower(*str2);
-		// Compare the characters
-		if (c1 != c2) {
-			return FALSE; // They differ in case-folded form
-		}
-		// Move to the next characters
-		str1++;
-		str2++;
-	}
-	return (*str1 == *str2); // Both must land on the null terminator together
-}
-
 // Get the address of a function by its name from a module base address
 FARPROC ResolveFunctionAddress(HANDLE hModule, const CHAR* functionName) {
 	// Getting the export directory from the module base address
