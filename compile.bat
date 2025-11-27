@@ -25,7 +25,7 @@ mkdir bin 2>nul
 
 gcc -m32 -Os -Qn ^
 	-nostdinc ^
-    -nostdlib -fno-ident -mno-stack-arg-probe -fno-stack-check ^
+    -nostdlib -fno-ident -mno-stack-arg-probe -fno-stack-check -ffunction-sections -fdata-sections ^
     -fno-asynchronous-unwind-tables ^
     -fno-unwind-tables ^
     -fno-exceptions ^

@@ -1,6 +1,8 @@
 #ifndef __PRIMITIVES_H__
 #define __PRIMITIVES_H__
 
+#include "architecture.h"
+
 #define TRUE    ((BOOL)1)
 #define FALSE   ((BOOL)0)
 #define towlower(c) (((c) >= L'A' && (c) <= L'Z') ? ((c) + (L'a' - L'A')) : (c))
@@ -27,7 +29,15 @@ typedef unsigned char UCHAR, * PUCHAR;
 typedef UINT16 WCHAR, * PWCHAR, ** PPWCHAR;
 
 typedef UINT8 BOOL, * PBOOL,** PPBOOL;
-typedef BOOL BOOLEAN;
+
+
+#if defined(ENVIRONMENT_x86_64)
+    typedef UINT64 USIZE , * PUSIZE;
+    typedef INT64 SIZE , * PSIZE;
+#else
+    typedef UINT32 USIZE , * PUSIZE;
+    typedef INT32 SIZE , * PSIZE;
+#endif 
 
 typedef PVOID HANDLE;
 typedef HANDLE* PHANDLE;

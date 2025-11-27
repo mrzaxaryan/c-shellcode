@@ -66,14 +66,15 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS {
 
 // Process Environment Block
 typedef struct _PEB {
-    BOOLEAN InheritedAddressSpace;
-    BOOLEAN ReadImageFileExecOptions;
-    BOOLEAN BeingDebugged;
-    BOOLEAN Spare;
-    HANDLE Mutant;
-    PVOID ImageBase;
-    PPEB_LDR_DATA LoaderData;
-    PRTL_USER_PROCESS_PARAMETERS ProcessParameters;
+	BOOL											InheritedAddressSpace;
+	BOOL											ReadImageFileExecOptions;
+	BOOL											BeingDebugged;
+	BOOL											Spare;
+	HANDLE											Mutant;
+	PVOID											ImageBase;
+	PPEB_LDR_DATA									LoaderData;
+	PRTL_USER_PROCESS_PARAMETERS					ProcessParameters;
+	PVOID											SubSystemData;
 } PEB, *PPEB;
 
 // Function to get the current process's PEB pointer

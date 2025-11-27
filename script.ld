@@ -4,7 +4,5 @@ SECTIONS
     {
         *(.text$mainCRTStartup)
         *(.text*)
-        *(.data*)
-        *(.rdata*)
     }
 }
