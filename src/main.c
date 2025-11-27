@@ -1,4 +1,7 @@
-#include "types.h"
+#include "environment.h"
+#include "primitives.h"
+#include "pe.h"
+#include "peb.h"
 
 // Function to resolve module handle by its name
 HMODULE ResolveModuleHandle(PPEB peb, const WCHAR* moduleName);
@@ -8,6 +11,9 @@ FARPROC ResolveFunctionAddress(HANDLE hModule, const CHAR* functionName);
 BOOL CompareWideStringIgnoreCase(const WCHAR* str1, const WCHAR* str2);
 // Case-insensitive string comparison
 BOOL CompareStringIgnoreCase(const CHAR* str1, const CHAR* str2);
+
+// Function pointer type for WriteConsoleA_t function
+typedef BOOL(WINAPI* WriteConsoleA_t)(HANDLE hConsoleOutput, LPCSTR lpBuffer, UINT32 nNumberOfCharsToWrite, UINT32* lpNumberOfCharsWritten, UINT32* lpReserved);
 
 int mainCRTStartup() {
 
