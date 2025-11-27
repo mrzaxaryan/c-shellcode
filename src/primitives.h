@@ -1,5 +1,5 @@
-#ifndef PRIMITIVES_H
-#define PRIMITIVES_H
+#ifndef __PRIMITIVES_H__
+#define __PRIMITIVES_H__
 
 #define TRUE    ((BOOL)1)
 #define FALSE   ((BOOL)0)
@@ -36,4 +36,4 @@ typedef HANDLE HMODULE;
 typedef const CHAR* LPCSTR, * PCSTR;
 typedef PVOID FARPROC, * PFARPROC;
 
-#endif // PRIMITIVES_H
+#endif // __PRIMITIVES_H__

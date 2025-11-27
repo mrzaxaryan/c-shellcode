@@ -23,13 +23,14 @@ if "%~1"=="" (
 
 mkdir bin 2>nul
 
-gcc -m32 ^
-    -nostdlib ^
+gcc -m32 -O0 -Qn ^
+	-nostdinc ^
+    -nostdlib -fno-ident -mno-stack-arg-probe -fno-stack-check ^
     -fno-asynchronous-unwind-tables ^
     -fno-unwind-tables ^
     -fno-exceptions ^
     -Wl,-T script.ld ^
-    -o bin\raw.exe ^
+    -o bin\out.exe ^
     %*
 
 if errorlevel 1 (
@@ -37,7 +38,17 @@ if errorlevel 1 (
     goto :end
 )
 
-echo [+] Dumping PE header info...
-objcopy -j .text -O binary bin\raw.exe bin\out.bin
+
+objcopy -j .text -O binary bin\out.exe bin\out.bin
+
+call :filesize "%CD%\bin\out.bin"
+echo file size is %size%
+goto :eof
+
+:filesize
+set "size=0"
+for %%A in (%1) do set "size=%%~zA"
+goto :eof
+
 :end
 endlocal

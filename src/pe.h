@@ -1,5 +1,5 @@
-#ifndef PE_H
-#define PE_H
+#ifndef __PE_H__
+#define __PE_H__
 
 #include "primitives.h"
 
@@ -151,4 +151,7 @@ typedef struct _IMAGE_DOS_HEADER {
     INT32    e_lfanew;
 } IMAGE_DOS_HEADER, *PIMAGE_DOS_HEADER;
 
-#endif // PE_H
+// Function to resolve function address by its name
+FARPROC ResolveFunctionAddress(HANDLE hModule, const CHAR* functionName);
+
+#endif // __PE_H__

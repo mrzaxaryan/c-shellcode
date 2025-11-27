@@ -1,6 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
 
-compile.bat src\main.c
+compile.bat src\*.c
 :end
 endlocal

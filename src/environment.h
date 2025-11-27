@@ -1,5 +1,5 @@
-#ifndef ENVIRONMENT_H
-#define ENVIRONMENT_H
+#ifndef __ENVIRONMENT_H__
+#define __ENVIRONMENT_H__
 
 // Check Compiler
 #if !defined(__GNUC__)
@@ -22,4 +22,4 @@
 	#define WINAPIV 
 #endif
 
-#endif // ENVIRONMENT_H
+#endif // __ENVIRONMENT_H__

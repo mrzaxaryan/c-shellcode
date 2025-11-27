@@ -1,15 +1,7 @@
-#ifndef PEB_STRUCTS_H
-#define PEB_STRUCTS_H
+#ifndef __PEB_H__
+#define __PEB_H__
 
 #include "primitives.h"
-
-#ifdef ENVIRONMENT_x86_64
-    #define PEB_OFFSET 0x60
-#elif defined(ENVIRONMENT_I386)
-    #define PEB_OFFSET 0x30
-#else
-    #error Unsupported architecture
-#endif // !WIN32
 
 // Unicode string structure
 typedef struct _UNICODE_STRING {
@@ -84,4 +76,11 @@ typedef struct _PEB {
     PRTL_USER_PROCESS_PARAMETERS ProcessParameters;
 } PEB, *PPEB;
 
-#endif // PEB_STRUCTS_H
+// Function to get the current process's PEB pointer
+PPEB GetCurrentPEB();
+// Function to resolve module handle by its name
+HMODULE ResolveModuleHandle(PPEB peb, const WCHAR* moduleName);
+
+#endif // __PEB_H__
+
+
