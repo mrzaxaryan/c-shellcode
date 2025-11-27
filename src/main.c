@@ -1,7 +1,4 @@
 #include "environment.h"
-#include "primitives.h"
-#include "peb.h"
-#include "pe.h"
 
 // Function pointer type for WriteConsoleA_t function
 typedef BOOL(WINAPI* WriteConsoleA_t)(HANDLE hConsoleOutput, LPCSTR lpBuffer, UINT32 nNumberOfCharsToWrite, UINT32* lpNumberOfCharsWritten, UINT32* lpReserved);
