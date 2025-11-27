@@ -23,7 +23,7 @@ if "%~1"=="" (
 
 mkdir bin 2>nul
 
-gcc -m32 -O0 -Qn ^
+gcc -m32 -Os -Qn ^
 	-nostdinc ^
     -nostdlib -fno-ident -mno-stack-arg-probe -fno-stack-check ^
     -fno-asynchronous-unwind-tables ^
