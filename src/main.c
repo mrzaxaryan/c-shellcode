@@ -11,7 +11,7 @@ int mainCRTStartup() {
 	PPEB peb = GetCurrentPEB(); // Get the current process's PEB pointer
 
 	// Name of the module to resolve
-	WCHAR moduleName[] = {L'K',L'e',L'r',L'n',L'e',L'l',L' ',L'3',L'2',L'.',L'd',L'l',L'l',0};
+	WCHAR moduleName[] = {L'K',L'e',L'r',L'n',L'e',L'l',L'3',L'2',L'.',L'D',L'L',L'L',0};
 	// Resolve the module handle
 	HANDLE kernel32Base = ResolveModuleHandle(peb,	moduleName);
 	// Validate the module handle
