@@ -3,9 +3,7 @@ setlocal enabledelayedexpansion
 
 set "PATH=C:\Program Files\LLVM\bin;%PATH%"
 
-mkdir bin 2>nul
-
-clang --verbose -O0 -Qn -fuse-ld=lld ^
+clang -O0 -Qn -fuse-ld=lld ^
     -target %1 ^
 	-nostdinc -nostartfiles -nodefaultlibs ^
     -nostdlib -fno-ident -mno-stack-arg-probe -fno-stack-check -ffunction-sections -fdata-sections ^
@@ -13,7 +11,7 @@ clang --verbose -O0 -Qn -fuse-ld=lld ^
     -fno-unwind-tables ^
     -fno-exceptions ^
     -Wl,/Entry:mainCRTStartup,/SUBSYSTEM:CONSOLE,/ORDER:@orderfile.txt,/BASE:%3 ^
-    -o bin\%1.exe ^
+    -o bin\windows\%1.exe ^
     %2
 
 if errorlevel 1 (
@@ -21,11 +19,11 @@ if errorlevel 1 (
 )
 
 
-llvm-objcopy --dump-section=.text=bin\%1.bin bin\%1.exe
-llvm-objdump -d -s -j .text bin\%1.exe
-llvm-objdump -h bin\%1.exe
+llvm-objcopy --dump-section=.text=bin\windows\%1.bin bin\windows\%1.exe
+llvm-objdump -d -s -j .text bin\windows\%1.exe > bin\windows\%1_disasm.txt
+llvm-objdump -h bin\windows\%1.exe > bin\windows\%1_sections.txt
 
-call :filesize "%CD%\bin\%1.bin"
+call :filesize "%CD%\bin\windows\%1.bin"
 echo file size is %size%
 goto :eof
 

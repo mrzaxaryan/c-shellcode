@@ -1,6 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
 
+rmdir /s /q bin 2>nul
+mkdir bin\windows 2>nul
+mkdir bin\linux 2>nul
+
 call compile-linux.bat i386-pc-linux-gnu src\*.c
 if errorlevel 1 goto :end
 
