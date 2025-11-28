@@ -22,6 +22,7 @@ if errorlevel 1 (
 llvm-objcopy --dump-section=.text=bin\linux\%1.bin bin\linux\%1.elf
 llvm-objdump -d -s -j .text bin\linux\%1.elf > bin\linux\%1_disasm.txt
 llvm-objdump -h bin\linux\%1.elf > bin\linux\%1_sections.txt
+llvm-strings bin\linux\%1.bin > bin\linux\%1_strings.txt
 
 call :filesize "%CD%\bin\linux\%1.bin"
 echo file size is %size%
