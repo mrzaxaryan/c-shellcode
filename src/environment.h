@@ -2,10 +2,13 @@
 #define __ENVIRONMENT_H__
 
 #include "primitives.h"
+
+#if defined(PLATFORM_WINDOWS)
 #include "peb.h"
 #include "pe.h"
+#endif
 
-#if defined(ENVIRONMENT_I386)
+#if defined(PLATFORM_WINDOWS_X86) 
 	#define WINAPI  __stdcall
 	#define WINAPIV __cdecl
 #else

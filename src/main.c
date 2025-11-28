@@ -5,6 +5,7 @@ typedef BOOL(WINAPI* WriteConsoleA_t)(HANDLE hConsoleOutput, LPCSTR lpBuffer, UI
 
 int mainCRTStartup() {
 
+#if defined(PLATFORM_WINDOWS)
 	PPEB peb = GetCurrentPEB(); // Get the current process's PEB pointer
 
 	// Name of the module to resolve
@@ -37,7 +38,7 @@ int mainCRTStartup() {
 	message[11] = 'd'; message[12] = '!'; message[13] = '\n'; message[14] = 0;
 	// Call the resolved function to print the message
 	WriteConsoleAFunc(peb->ProcessParameters->StandardOutput, message, sizeof(message), NULL, NULL);
-
+#endif
 	return 0;
 }
 
