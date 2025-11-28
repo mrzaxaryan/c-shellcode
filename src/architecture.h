@@ -19,14 +19,4 @@
     #error Unsupported architecture
 #endif
 
-
-
-#if defined(ENVIRONMENT_I386)
-	#define WINAPI  __stdcall
-	#define WINAPIV __cdecl
-#else
-	#define WINAPI 
-	#define WINAPIV 
-#endif
-
 #endif // __ARCHITECTURE_H__
