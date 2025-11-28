@@ -1,8 +1,11 @@
-SECTIONS
-{
+PHDRS {
+    text PT_LOAD FLAGS(5);   /* R + X */
+}
+
+SECTIONS {
     .text : ALIGN(1) SUBALIGN(1)
     {
         *(.text$mainCRTStartup)
         *(.text*)
-    }
+    } : text
 }
