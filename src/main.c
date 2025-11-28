@@ -2,9 +2,9 @@
 
 // Function pointer type for WriteConsoleA_t function
 typedef BOOL(WINAPI* WriteConsoleA_t)(HANDLE hConsoleOutput, LPCSTR lpBuffer, UINT32 nNumberOfCharsToWrite, UINT32* lpNumberOfCharsWritten, UINT32* lpReserved);
-void print(const PCHAR s,  SIZE len) ;
-void exitSystemCall(int code);
-int mainCRTStartup() {
+VOID print(const PCHAR s,  SIZE len) ;
+VOID exitSystemCall(INT32 code);
+INT32 mainCRTStartup() {
 #if defined(PLATFORM_WINDOWS)
 	PPEB peb = GetCurrentPEB(); // Get the current process's PEB pointer
 
@@ -49,7 +49,7 @@ CHAR message[15];
 	exitSystemCall(0);
 	return 0;
 }
-void print(const PCHAR s,  SIZE len) {
+VOID print(const PCHAR s,  SIZE len) {
 #if defined(PLATFORM_LINUX_X86_64)
     __asm__ volatile(
         "mov $1, %%rax\n" 	  // syscall: write = 1
@@ -87,7 +87,7 @@ void print(const PCHAR s,  SIZE len) {
 #endif
 }
 
-  void exitSystemCall(int code) {
+  VOID exitSystemCall(INT32 code) {
 #if defined(PLATFORM_LINUX_X86_64)
 	__asm__ volatile(
 		"mov $60, %%rax\n"  // syscall: exit = 60
