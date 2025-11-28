@@ -3,6 +3,8 @@
 ## Table of Contents
 - [Overview](#overview)
 - [Features](#features)
+- [Supported Targets](#supported-targets)
+- [Cross-Platform Architecture](#cross-platform-architecture)
 - [Step-by-Step Guide](#step-by-step-guide)
 - [Usage](#usage)
 - [Files](#files)
@@ -10,274 +12,149 @@
 - [Detection & Ethics Note](#detection--ethics-note)
 - [References](#references)
 
-This project demonstrates manual Windows API resolution and shellcode techniques in C, without including any standard Windows headers. All required types and structures (PEB, PE headers, etc.) are defined manually in src/types.h. The code locates the PEB, enumerates loaded modules to find Kernel32.dll, parses PE headers to resolve exported function addresses, and prints a message using only resolved addresses. No standard library or Windows headers are used making it suitable for shellcode and low-level research. See the expanded README for step-by-step details and code samples.
+This project demonstrates manual Windows API resolution and position-independent shellcode techniques in C, without including any standard Windows headers or libraries. All required types and structures (PEB, PE headers, NT structures, etc.) are defined manually across multiple header files. The code locates the PEB, enumerates loaded modules to find Kernel32.dll, parses PE headers to resolve exported function addresses, and prints a message using only resolved addresses. No standard library, CRT, or Windows headers are used, and the project cross-compiles for multiple architectures (x86, x64, ARM64) and platforms (Windows, Linux) from a single codebase. See below for step-by-step details and code samples.
 
 ## Overview
+
 This project shows how to:
 - Manually locate the Process Environment Block (PEB)
 - Enumerate loaded modules to find the base address of `Kernel32.dll`
 - Parse PE headers to resolve the address of exported functions (e.g., `WriteConsoleA`)
 - Print a message to the console using only resolved addresses, without standard library calls
+- Cross-compile for multiple architectures and platforms
 
 ## Features
+
 - No reliance on standard Windows headers or libraries
+- No CRT or standard library dependencies
 - Custom type definitions and PE/NT structures
-- Works on x86 and x64 Windows
+- Works on x86, x64, and ARM64 architectures
+- Cross-compiles for Windows (PE) and Linux (ELF) targets
+- Extracts raw shellcode from `.text` section
 - Demonstrates techniques useful for shellcode and low-level Windows internals
 
+## Supported Targets
 
-## types.h
- This file contains all custom Windows types, macros, calling conventions, and internal structures required for this project. It replaces `windows.h`, `winternl.h`, and `winnt.h`, allowing the code to compile with no external dependencies.
+| Platform | Architecture | Target Triple |
+|----------|--------------|---------------|
+| Windows | x86/x64/ARM64 | `i386-pc-windows-msvc`, `x86_64-pc-windows-msvc`, `aarch64-pc-windows-msvc` |
+| Linux | x86/x64/ARM64 | `i386-pc-linux-gnu`, `x86_64-pc-linux-gnu`, `aarch64-pc-linux-gnu` |
 
-## Compiler, Architecture & Calling Conventions 
- The file begins by detecting the compiler (`MSVC`, `GCC`, `Clang`) and CPU architecture (`x86`, `x64`, `ARM32`, `ARM64`).
-   - `ENVIRONMENT_x86_64`, `ENVIRONMENT_I386`, etc.
-   - `WINAPI` / `WINAPIV` calling conventions
-   - 32‑bit uses `__stdcall` and `__cdecl`
-   - 64‑bit leaves them blank (Windows x64 uses a single calling convention)
-## Primitive Types
- All primitive Win32 types are recreated manually:
+## Cross-Platform Architecture
 
-### Void
-```
-typedef void VOID, * PVOID,** PPVOID;
-```
- 
-### Signed and unsigned
-```
-typedef signed char INT8, * PINT8;
-typedef unsigned char UINT8, * PUINT8, ** PPUINT8;
-typedef signed short int INT16, * PINT16;
-typedef unsigned short int UINT16, * PUINT16;
-typedef signed long int INT32, * PINT32;
-typedef unsigned long int UINT32, * PUINT32, ** PPUINT32;
-typedef signed long long int INT64, * PINT64;
-typedef unsigned long long int UINT64, * PUINT64,** PPUINT64;
+The project uses compile-time macros to detect and adapt to different architectures:
+
+### Architecture Detection (`src/architecture.h`)
+```c
+#if defined(__x86_64__) || defined(_M_X64)
+    #define ENVIRONMENT_X86_64
+#elif defined(__i386__) || defined(_M_IX86)
+    #define ENVIRONMENT_I386
+#elif defined(__aarch64__) || defined(_M_ARM64)
+    #define ENVIRONMENT_ARM64
+#endif
 ```
 
-### Char
-```
-typedef char CHAR, * PCHAR, ** PPCHAR;
-typedef unsigned char UCHAR, * PUCHAR;
-```
-
-### Wide char
-```
-typedef UINT16 WCHAR, * PWCHAR, ** PPWCHAR;
+### Calling Conventions (`src/environment.h`)
+```c
+#if defined(ENVIRONMENT_I386)
+    #define WINAPI __stdcall    // 32-bit uses stdcall
+#else
+    #define WINAPI              // 64-bit uses Microsoft x64 ABI
+#endif
 ```
 
-### Boolean
-```
-typedef UINT8 BOOL, * PBOOL,** PPBOOL;
-typedef BOOL BOOLEAN;
-```
-
-### Handle
-```
-typedef PVOID HANDLE;
-typedef HANDLE* PHANDLE;
-typedef HANDLE HMODULE;
+### Pointer Sizes (`src/primitives.h`)
+```c
+#if defined(ENVIRONMENT_X86_64)
+    typedef UINT64 USIZE;       // 64-bit pointers
+#else
+    typedef UINT32 USIZE;       // 32-bit pointers
+#endif
 ```
 
-### String
+### PEB Access (`src/peb.c`)
+```c
+#if defined(ENVIRONMENT_X86_64)
+    asm("movq %%gs:0x60, %0" : "=r"(peb));  // GS segment
+#elif defined(ENVIRONMENT_I386)
+    asm("movl %%fs:0x30, %0" : "=r"(peb));  // FS segment
+#elif defined(ENVIRONMENT_ARM64)
+    asm("ldr %0, [x18, #0x60]" : "=r"(peb)); // X18 register
+#endif
 ```
-typedef const CHAR* LPCSTR, * PCSTR;
-typedef PVOID FARPROC, * PFARPROC;
-```
-
-## Struct Types
-### Unicode string
-
-```
-typedef struct UNICODE_STRING {
-    UINT16 Length;
-    UINT16 MaximumLength;
-    PWCHAR Buffer;
-} UNICODE_STRING, * PUNICODE_STRING;
-```
-Used for identifying module names such as `"KERNEL32.DLL"` inside the PEB loader list.
-
-- `Length` → Length in bytes
-- `MaximumLength` → Allocated buffer size
-- `Buffer` → Pointer to UTF‑16 characters
-
-### List entry
-```
-typedef struct _LIST_ENTRY {
-    struct _LIST_ENTRY* Flink;
-    struct _LIST_ENTRY* Blink;
-} LIST_ENTRY, * PLIST_ENTRY;
-```
-Windows uses this in the PEB to maintain lists of loaded modules.
-- `Flink` → Pointer to the next entry
-- `Blink` → Pointer to the previous entry
-
-### Loader data table entry
-```
-typedef struct _LDR_DATA_TABLE_ENTRY {
-	LIST_ENTRY		   InLoadOrderLinks;
-	PVOID 			   Reserved2[2];
-	PVOID 			   DllBase;
-	UNICODE_STRING 	FullDllName;
-} LDR_DATA_TABLE_ENTRY, * PLDR_DATA_TABLE_ENTRY;
-```
-- `InLoadOrderLinks` → Used to move to the next module
-- `DllBase` → Module base address
-- `FullDllName` → Module name (“kernel32.dll”)
-
-### Loader module
-```
-typedef struct _LDR_MODULE {
-	LIST_ENTRY						InMemoryOrderModuleList;
-	LIST_ENTRY						InLoadOrderModuleList;
-	LIST_ENTRY						InInitializationOrderModuleList;
-	PVOID							BaseAddress;
-	PVOID							EntryPoint;
-	UINT32							SizeOfImage;
-	UNICODE_STRING		        	FullDllName;
-	UNICODE_STRING		        	BaseDllName;
-	UINT32							Flags;
-	INT16							LoadCount;
-	INT16							TlsIndex;
-	LIST_ENTRY						HashTableEntry;
-	UINT32							TimeDateStamp;
-} LDR_MODULE, * PLDR_MODULE;
-```
-- `InMemoryOrderModuleList` → Pointers to previous and next `LDR_MODULE` in memory placement order.
-- `InLoadOrderModuleList` → Pointers to previous and next `LDR_MODULE` in load order.
-- `InInitializationOrderModuleList` → Pointers to previous and next `LDR_MODULE` in initialization order.
-- `BaseAddress` → Module base address, Equivalent to `HMODULE`.
-- `EntryPoint` → Module entry point.
-- `SizeOfImage` → Sum of all image's sections placed in memory.
-- `FullDllName` → Path and name of module.
-- `BaseDllName` → Module name only.
-- `Flags` → Loader-specific flags describing the module state.
-- `LoadCount` → How many times this module has been loaded (reference count).
-- `TlsIndex` → Index of the module’s _Thread Local Storage_ entry.
-- `HashTableEntry` → Hash table entry of the module.
-- `TimeDateStamp` → Timestamp from the PE header.
-
-
-### PEB loader metadata
-```
-typedef struct _PEB_LDR_DATA {
-	UINT32							Length;
-	UINT32							Initialized;
-	PVOID	                        SsHandle;
-	LIST_ENTRY						InLoadOrderModuleList;
-	LIST_ENTRY						InMemoryOrderModuleList;
-	LIST_ENTRY						InInitializationOrderModuleList;
-} PEB_LDR_DATA, * PPEB_LDR_DATA;
-```
-
-Loader metadata inside the PEB:
-- `Length` → Size of the `PEB_LDR_DATA` structure in bytes.
-- `Initialized` → Boolean-like value indicating whether loader data has been fully initialized.
-- `SsHandle` → Subsystem handle.
-- `InLoadOrderModuleList` → Pointers to previous and next `LDR_MODULE` in load order.
-- `InInitializationOrderModuleList` → Pointers to previous and next `LDR_MODULE` in initialization order.
-
-### Process parameters structure
-```
-typedef struct _RTL_USER_PROCESS_PARAMETERS
-{
-	UINT32							MaximumLength;
-	UINT32							Length;
-	UINT32							Flags;
-	UINT32							DebugFlags;
-	HANDLE							ConsoleHandle;
-	UINT32							ConsoleFlags;
-	HANDLE							StandardInput;
-	HANDLE 							StandardOutput;
-	HANDLE							StandardError;
-} RTL_USER_PROCESS_PARAMETERS, * PRTL_USER_PROCESS_PARAMETERS;
-```
-- `MaximumLength` → Total allocated size of the structure in bytes.
-- `Length` → The size of the structure currently in use.
-- `Flags` → Process parameter flags.
-- `DebugFlags` → Flags used internally for debugging.
-- `ConsoleHandle` → Handle to the process’s console window (if it has one).
-- `ConsoleFlags` → Console mode flags controlling input/output behavior.
-- `StandardInput` → Handle to the process’s standard input (`stdin`).
-- `StandardOutput` → Handle to standard output (`stdout`).
-- `StandardError` → Handle to standard error (`stderr`).
-
-### Process Environment Block
-```
-typedef struct PEB {
-	BOOLEAN							InheritedAddressSpace;
-	BOOLEAN							ReadImageFileExecOptions;
-	BOOLEAN							BeingDebugged;
-	BOOLEAN							Spare;
-	HANDLE							Mutant;
-	PVOID							ImageBase;
-	PPEB_LDR_DATA					LoaderData;
-	PRTL_USER_PROCESS_PARAMETERS	ProcessParameters;
-} PEB, * PPEB;
-```
-- `InheritedAddressSpace` → Indicates if the process inherited its address space from its parent.
-- `ReadImageFileExecOptions` → Indicates whether image file execution options (`IFEO`) were applied to the process.
-- `BeingDebugged` → Nonzero if the process is being debugged (`DebuggerPresent` flag).
-- `Spare` → Reserved/unused padding byte.
-- `Mutant` → Handle to a synchronization object used during early process startup.
-- `ImageBase` → Base address where the main executable image is loaded in memory.
-- `LoaderData` → (`PPEB_LDR_DATA`) Pointer to loader metadata (linked lists of loaded modules).
-- `ProcessParameters` → (`PRTL_USER_PROCESS_PARAMETERS`)	Pointer to the process’s parameters.
-
 
 ## Step-by-Step Guide
 
-### 1. Choose Compiler and Build Environment
-- Use MinGW or a compatible C compiler that allows building raw executables without linking standard libraries.
-- Example: Install MinGW and use `gcc`.
+### 1. Define Custom Types and Structures
+- Do not include Windows headers (e.g., `windows.h`)
+- Create your own type definitions for basic types (e.g., `DWORD`, `BYTE`, `HANDLE`)
+- Define necessary PE/NT structures in your own headers (see `src/primitives.h`, `src/peb.h`, `src/pe.h`)
 
-### 2. Define Custom Types and Structures
-- Do not include Windows headers (e.g., `windows.h`).
-- Create your own type definitions for basic types (e.g., `DWORD`, `BYTE`, `ULONG_PTR`).
-- Define necessary PE/NT structures in your own header (see `src/types.h`).
+### 2. Manually Locate PEB and Kernel32.dll
+- Use inline assembly to get the PEB address (architecture-specific)
+- Traverse the PEB to enumerate loaded modules and find the base address of `Kernel32.dll`
 
-### 3. Manually Locate PEB and Kernel32.dll
-- Use inline assembly or compiler intrinsics to get the PEB address.
-- Traverse the PEB to enumerate loaded modules and find the base address of `Kernel32.dll`.
+### 3. Parse PE Headers to Resolve API Addresses
+- Read the PE export table of `Kernel32.dll` to find function addresses (e.g., `WriteConsoleA`)
+- Implement your own PE parsing logic in C (see `src/pe.c`)
 
-### 4. Parse PE Headers to Resolve API Addresses
-- Read the PE export table of `Kernel32.dll` to find function addresses (e.g., `WriteConsoleA`).
-- Implement your own PE parsing logic in C.
+### 4. Print Message Without Dependencies
+- Use the resolved address of `WriteConsoleA` to print "Hello, World!"
+- Do not use any standard library functions or headers
 
-### 5. Print Message Without Dependencies
-- Use the resolved address of `WriteConsoleA` to print "Hello world!".
-- Do not use any standard library functions or headers.
-
-### 6. Build and Run
-- Use the provided batch files (`build.bat`, `compile.bat`) to compile the project.
+### 5. Build and Run
+- Use `build.bat` to compile for all targets
 - Run the executable. It should print:
   ```
-  Hello world!
+  Hello, World!
   ```
 
 ## Usage
-1. Build the project using the provided batch files:
-   - `build.bat` or `compile.bat`
+
+1. Build the project using the provided batch file:
+   ```batch
+   build.bat
+   ```
 2. Run the resulting executable. It should print:
    ```
-   Hello world!
+   Hello, World!
    ```
 
+**Build outputs** (per target in `bin/windows/` and `bin/linux/`):
+- `.exe`/`.elf` - Compiled executable
+- `.bin` - Raw shellcode (extracted `.text` section)
+- `_disasm.txt` - Disassembly of `.text` section
+- `_sections.txt` - PE/ELF section headers
+- `_strings.txt` - Strings found in shellcode
+
 ## Files
-- `src/main.c`: Main logic for module/function resolution and message printing
-- `src/types.h`: Custom type and structure definitions for Windows internals
-- `build.bat`, `compile.bat`, `install_mingw.bat`: Build and setup scripts
+
+- `src/main.c` - Main logic for module/function resolution and message printing
+- `src/architecture.h` - Compiler and architecture detection macros
+- `src/environment.h` - Platform-specific definitions (calling conventions)
+- `src/primitives.h` - Custom type definitions for Windows internals
+- `src/peb.h`, `src/peb.c` - PEB/LDR structures and module resolution
+- `src/pe.h`, `src/pe.c` - PE header structures and export resolution
+- `src/string.h`, `src/string.c` - Custom string comparison functions
+- `build.bat` - Main build script (builds all targets)
+- `compile-windows.bat`, `compile-linux.bat` - Platform-specific compilation scripts
+- `linker.script` - Custom linker script for section ordering
+- `orderfile.txt` - Function ordering (entry point first)
 
 ## Requirements
-- Windows (x86 or x64)
-- MinGW or compatible C compiler
+
+- LLVM/Clang toolchain with `lld` linker
+- LLVM tools: `llvm-objcopy`, `llvm-objdump`, `llvm-strings`
 
 ## Detection & Ethics Note
 
 **Research-only.**
-- This technique does not guarantee stealth. Security products may detect hardware breakpoint usage, VEH patterns, or emulator behavior.
+- This technique does not guarantee stealth. Security products may detect PEB walking, API resolution patterns, or similar behaviors.
 - Do not use to evade detection, run untrusted code, or break laws/policies.
 - Always test in isolated, offline VMs and follow responsible disclosure and research ethics.
 
 ## References
-Add references to documentation, articles, or resources here.
+
+- [Windows Internals - PEB Structure](https://docs.microsoft.com/en-us/windows/win32/api/winternl/ns-winternl-peb)
+- [PE Format Specification](https://docs.microsoft.com/en-us/windows/win32/debug/pe-format)
