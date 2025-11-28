@@ -1,9 +1,13 @@
 #include "peb.h"
 
-#ifdef ENVIRONMENT_x86_64
+#if defined(ENVIRONMENT_X86_64)
     #define PEB_OFFSET 0x60
 #elif defined(ENVIRONMENT_I386)
     #define PEB_OFFSET 0x30
+#elif defined(ENVIRONMENT_ARM64)
+	#define PEB_OFFSET 0x60
+#elif defined(ENVIRONMENT_ARM32)
+	#error ARM32 architecture is not yet supported
 #else
     #error Unsupported architecture
 #endif // !WIN32
@@ -11,10 +15,17 @@
 // Returns the current process's PEB pointer
 PPEB GetCurrentPEB() {
     PPEB peb;
-#ifdef ENVIRONMENT_x86_64
+#if defined(ENVIRONMENT_X86_64)
     asm("movq %%gs:%1, %0" : "=r" (peb) : "m" (*(PUINT64)(PEB_OFFSET)));
-#else // WIN32
+#elif defined(ENVIRONMENT_I386)
     asm("movl %%fs:%1, %0" : "=r" (peb) : "m" (*(PUINT32)(PEB_OFFSET)));
+#elif defined(ENVIRONMENT_ARM64)
+	asm("ldr %0, [x18, #%1]"
+        : "=r"(peb)
+        : "i"(PEB_OFFSET));
+
+#elif defined(ENVIRONMENT_ARM32)
+	#error ARM32 architecture is not yet supported
 #endif // WIN32
     return peb;
 }
