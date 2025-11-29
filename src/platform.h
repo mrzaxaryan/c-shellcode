@@ -1,6 +1,12 @@
 #ifndef __PLATFORM_H__
 #define __PLATFORM_H__
 
+// Check Compiler
+#if !defined(__clang__ )
+	#error Unsupported compiler
+#endif
+
+// Detect Platform and Architecture
 #if defined(_WIN32)
 
     #define PLATFORM_WINDOWS

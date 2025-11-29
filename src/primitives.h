@@ -1,7 +1,7 @@
 #ifndef __PRIMITIVES_H__
 #define __PRIMITIVES_H__
 
-#include "architecture.h"
+#include "platform.h"
 
 #define TRUE    ((BOOL)1)
 #define FALSE   ((BOOL)0)
