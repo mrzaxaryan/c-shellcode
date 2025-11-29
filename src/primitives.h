@@ -39,8 +39,6 @@ typedef UINT8 BOOL, * PBOOL,** PPBOOL;
     typedef INT32 SSIZE , * PSSIZE;
 #endif 
 
-
-
 typedef const CHAR* LPCSTR, * PCSTR;
 
 #endif // __PRIMITIVES_H__
