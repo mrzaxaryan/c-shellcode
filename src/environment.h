@@ -8,12 +8,12 @@
 #include "pe.h"
 #endif
 
-#if defined(PLATFORM_WINDOWS_X86) 
+#include "console.h"
+
+#if defined(PLATFORM_WINDOWS_I386)
 	#define WINAPI  __stdcall
-	#define WINAPIV __cdecl
 #else
 	#define WINAPI  
-	#define WINAPIV 
 #endif
 
 #endif // __ENVIRONMENT_H__
