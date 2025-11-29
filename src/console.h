@@ -4,6 +4,6 @@
 #include "primitives.h"
 
 // Function to write output to the console
-VOID WriteConsole(const PCHAR output,  SIZE outputLength);
+VOID WriteConsole(const PCHAR output,  USIZE outputLength);
 
 #endif // __CONSOLE_H__

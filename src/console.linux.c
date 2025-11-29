@@ -3,11 +3,11 @@
 
 #if defined(PLATFORM_LINUX)
 
-VOID WriteConsole(const PCHAR s,  SIZE len) {
+VOID WriteConsole(const PCHAR output,  USIZE outputLength) {
 
 #if defined(PLATFORM_LINUX_AMD64)
-    register const char *rsi asm("rsi") = s;
-    register long rdx asm("rdx") = len;
+    register const char *rsi asm("rsi") = output;
+    register long rdx asm("rdx") = outputLength;
     register long rdi asm("rdi") = 1;
     register long rax asm("rax") = 1;
 
@@ -19,8 +19,8 @@ VOID WriteConsole(const PCHAR s,  SIZE len) {
     );
 #elif defined(PLATFORM_LINUX_ARM64)
 	register long x0 __asm__("x0") = 1;      // fd = 1 (stdout)
-    register const char *x1 __asm__("x1") = s;
-    register long x2 __asm__("x2") = len;
+    register const char *x1 __asm__("x1") = output;
+    register long x2 __asm__("x2") = outputLength;
     register long x8 __asm__("x8") = 64;     // SYS_write on aarch64
 
     __asm__ volatile(
@@ -37,7 +37,7 @@ VOID WriteConsole(const PCHAR s,  SIZE len) {
         "movl %1, %%edx\n\t"    /* length */
         "int $0x80"
         :
-        : "r"(s), "r"(len)
+        : "r"(output), "r"(outputLength)
         : "eax", "ebx", "ecx", "edx", "memory", "cc"
     );
 #endif

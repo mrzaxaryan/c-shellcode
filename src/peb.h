@@ -57,11 +57,11 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS {
     UINT32 Length;
     UINT32 Flags;
     UINT32 DebugFlags;
-    HANDLE ConsoleHandle;
+    PVOID ConsoleHandle;
     UINT32 ConsoleFlags;
-    HANDLE StandardInput;
-    HANDLE StandardOutput;
-    HANDLE StandardError;
+    PVOID StandardInput;
+    PVOID StandardOutput;
+    PVOID StandardError;
 } RTL_USER_PROCESS_PARAMETERS, *PRTL_USER_PROCESS_PARAMETERS;
 
 // Process Environment Block
@@ -70,7 +70,7 @@ typedef struct _PEB {
 	BOOL											ReadImageFileExecOptions;
 	BOOL											BeingDebugged;
 	BOOL											Spare;
-	HANDLE											Mutant;
+	PVOID											Mutant;
 	PVOID											ImageBase;
 	PPEB_LDR_DATA									LoaderData;
 	PRTL_USER_PROCESS_PARAMETERS					ProcessParameters;
@@ -80,7 +80,7 @@ typedef struct _PEB {
 // Function to get the current process's PEB pointer
 PPEB GetCurrentPEB();
 // Function to resolve module handle by its name
-HMODULE ResolveModuleHandle(PPEB peb, const WCHAR* moduleName);
+PVOID ResolveModuleHandle(PPEB peb, const PWCHAR moduleName);
 
 #endif // __PEB_H__
 

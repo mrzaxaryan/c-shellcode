@@ -2,7 +2,9 @@
 #define __PLATFORM_H__
 
 #if defined(_WIN32)
+
     #define PLATFORM_WINDOWS
+
     #if defined(__x86_64__) || defined(_M_X64)
         #define PLATFORM_WINDOWS_AMD64
         #define ARCHITECTURE_AMD64
@@ -20,7 +22,9 @@
     #endif
 
 #elif defined(__linux__)
+
     #define PLATFORM_LINUX
+    
     #if defined(__x86_64__)
         #define PLATFORM_LINUX_AMD64
         #define ARCHITECTURE_AMD64
@@ -38,7 +42,7 @@
     #endif
 
 #else
-    #error "Unknown platform"
+    #error "Unsupported platform"
 #endif
 
 #endif // __PLATFORM_H__

@@ -152,6 +152,6 @@ typedef struct _IMAGE_DOS_HEADER {
 } IMAGE_DOS_HEADER, *PIMAGE_DOS_HEADER;
 
 // Function to resolve function address by its name
-FARPROC ResolveFunctionAddress(HANDLE hModule, const CHAR* functionName);
+PVOID ResolveFunctionAddress(PVOID hModule, const PCHAR functionName);
 
 #endif // __PE_H__

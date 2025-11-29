@@ -33,17 +33,14 @@ typedef UINT8 BOOL, * PBOOL,** PPBOOL;
 
 #if defined(ARCHITECTURE_AMD64) || defined(ARCHITECTURE_ARM64)
     typedef UINT64 USIZE , * PUSIZE;
-    typedef INT64 SIZE , * PSIZE;
+    typedef INT64 SSIZE , * PSSIZE;
 #else
     typedef UINT32 USIZE , * PUSIZE;
-    typedef INT32 SIZE , * PSIZE;
+    typedef INT32 SSIZE , * PSSIZE;
 #endif 
 
-typedef PVOID HANDLE;
-typedef HANDLE* PHANDLE;
-typedef HANDLE HMODULE;
+
 
 typedef const CHAR* LPCSTR, * PCSTR;
-typedef PVOID FARPROC, * PFARPROC;
 
 #endif // __PRIMITIVES_H__

@@ -1,7 +1,9 @@
 #include "string.h"
 
 // Custom case-insensitive string comparison
-BOOL CompareStringIgnoreCase(const CHAR* str1, const CHAR* str2) {
+BOOL CompareStringIgnoreCase(const PCHAR s1, const PCHAR s2) {
+	PCHAR str1 = s1;
+	PCHAR str2 = s2;
 	// Loop through each character in both strings
 	while (*str1 && *str2) {
 		// Convert to lowercase for case-insensitive comparison
@@ -19,7 +21,9 @@ BOOL CompareStringIgnoreCase(const CHAR* str1, const CHAR* str2) {
 }
 
 // Custom case-insensitive wide string comparison
-BOOL CompareWideStringIgnoreCase(const WCHAR* str1, const WCHAR* str2) {
+BOOL CompareWideStringIgnoreCase(const PWCHAR s1, const PWCHAR s2) {
+	PWCHAR str1 = s1;
+	PWCHAR str2 = s2;
 	// Loop through each character in both strings
 	while (*str1 && *str2) {
 		// Convert to lowercase cause-insensitive comparison
