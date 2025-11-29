@@ -7,8 +7,8 @@
         #define PLATFORM_WINDOWS_AMD64
         #define ARCHITECTURE_AMD64
     #elif defined(__i386__) || defined(_M_IX86)
-        #define PLATFORM_WINDOWS_X86
-        #define ARCHITECTURE_X86    
+        #define PLATFORM_WINDOWS_I386
+        #define ARCHITECTURE_I386
     #elif defined(__aarch64__) || defined(_M_ARM64)
         #define PLATFORM_WINDOWS_ARM64
         #define ARCHITECTURE_ARM64
@@ -25,8 +25,8 @@
         #define PLATFORM_LINUX_AMD64
         #define ARCHITECTURE_AMD64
     #elif defined(__i386__)
-        #define PLATFORM_LINUX_X86
-        #define ARCHITECTURE_X86
+        #define PLATFORM_LINUX_I386
+        #define ARCHITECTURE_I386
     #elif defined(__aarch64__)
         #define PLATFORM_LINUX_ARM64
         #define ARCHITECTURE_ARM64

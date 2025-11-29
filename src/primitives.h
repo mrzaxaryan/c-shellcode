@@ -31,7 +31,7 @@ typedef UINT16 WCHAR, * PWCHAR, ** PPWCHAR;
 typedef UINT8 BOOL, * PBOOL,** PPBOOL;
 
 
-#if defined(ARCHITECTURE_AMD64) || defined(ARCHITECTURE_ARM64) || defined(ARCHITECTURE_WASM64)
+#if defined(ARCHITECTURE_AMD64) || defined(ARCHITECTURE_ARM64)
     typedef UINT64 USIZE , * PUSIZE;
     typedef INT64 SIZE , * PSIZE;
 #else

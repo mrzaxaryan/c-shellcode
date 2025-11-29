@@ -3,7 +3,7 @@
 
 #if defined(PLATFORM_WINDOWS_AMD64)
     #define PEB_OFFSET 0x60
-#elif defined(PLATFORM_WINDOWS_X86)
+#elif defined(PLATFORM_WINDOWS_I386)
     #define PEB_OFFSET 0x30
 #elif defined(PLATFORM_WINDOWS_ARM64)
 	#define PEB_OFFSET 0x60
@@ -18,7 +18,7 @@ PPEB GetCurrentPEB() {
     PPEB peb;
 #if defined(PLATFORM_WINDOWS_AMD64)
     asm("movq %%gs:%1, %0" : "=r" (peb) : "m" (*(PUINT64)(PEB_OFFSET)));
-#elif defined(PLATFORM_WINDOWS_X86)
+#elif defined(PLATFORM_WINDOWS_I386)
     asm("movl %%fs:%1, %0" : "=r" (peb) : "m" (*(PUINT32)(PEB_OFFSET)));
 #elif defined(PLATFORM_WINDOWS_ARM64)
 	asm("ldr %0, [x18, #%1]"

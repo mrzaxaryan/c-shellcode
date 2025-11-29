@@ -50,17 +50,18 @@ CHAR message[15];
 	return 0;
 }
 VOID print(const PCHAR s,  SIZE len) {
-#if defined(PLATFORM_LINUX_X86_64)
-    __asm__ volatile(
-        "mov $1, %%rax\n" 	  // syscall: write = 1
-        "mov $1, %%rdi\n" 	// file descriptor: stdout = 1
-        "mov %0, %%rsi\n"  // pointer to the string to write
-        "mov %1, %%rdx\n" // length of the string
-        "syscall\n"
-        :
-        : "r"(s), "r"(len)
-        : "rax", "rdi", "rsi", "rdx"
-    );
+#if defined(PLATFORM_LINUX_AMD64)
+register const char *rsi asm("rsi") = s;
+register long rdx asm("rdx") = len;
+register long rdi asm("rdi") = 1;
+register long rax asm("rax") = 1;
+
+__asm__ volatile(
+    "syscall"
+    : "+r"(rax)
+    : "r"(rdi), "r"(rsi), "r"(rdx)
+    : "rcx", "r11", "memory", "cc"
+);
 #elif defined(PLATFORM_LINUX_ARM64)
 	register long x0 __asm__("x0") = 1;      // fd = 1 (stdout)
     register const char *x1 __asm__("x1") = s;
@@ -74,21 +75,21 @@ VOID print(const PCHAR s,  SIZE len) {
         : "memory", "cc"
     );
 	#elif defined(PLATFORM_LINUX_I386)
-	_asm__ volatile(
-        "movl $4, %%eax\n"    // SYS_write
-        "movl $1, %%ebx\n"    // fd = stdout
-        "movl %0, %%ecx\n"    // buffer
-        "movl %1, %%edx\n"    // length
-        "int $0x80\n"
+	__asm__ volatile(
+        "movl $4, %%eax\n\t"    /* SYS_write = 4 */
+        "movl $1, %%ebx\n\t"    /* fd = stdout */
+        "movl %0, %%ecx\n\t"    /* buffer */
+        "movl %1, %%edx\n\t"    /* length */
+        "int $0x80"
         :
         : "r"(s), "r"(len)
-        : "eax", "ebx", "ecx", "edx"
+        : "eax", "ebx", "ecx", "edx", "memory", "cc"
     );
 #endif
 }
 
   VOID exitSystemCall(INT32 code) {
-#if defined(PLATFORM_LINUX_X86_64)
+#if defined(PLATFORM_LINUX_AMD64)
 	__asm__ volatile(
 		"mov $60, %%rax\n"  // syscall: exit = 60
 		"mov %0, %%rdi\n"   // exit code
