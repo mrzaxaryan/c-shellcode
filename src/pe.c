@@ -1,5 +1,7 @@
 #include "pe.h"
 
+#if defined(PLATFORM_WINDOWS)
+
 // Get the address of a function by its name from a module base address
 FARPROC ResolveFunctionAddress(HANDLE hModule, const CHAR* functionName) {
 	// Getting the export directory from the module base address
@@ -16,3 +18,5 @@ FARPROC ResolveFunctionAddress(HANDLE hModule, const CHAR* functionName) {
 	}
 	return NULL; // Function was not found
 }
+
+#endif

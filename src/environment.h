@@ -6,6 +6,12 @@
 #if defined(PLATFORM_WINDOWS)
 #include "peb.h"
 #include "pe.h"
+
+#define ExitWithCode(code)  return code
+
+#elif defined(PLATFORM_LINUX)
+VOID ExitWithReturnCode(INT32 code); 
+#define ExitWithCode(code)  ExitWithReturnCode(code); return code
 #endif
 
 #include "console.h"
